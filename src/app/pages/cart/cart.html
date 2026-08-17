@@ -1,40 +1,123 @@
 <section class="cart-page">
+
   <h1>Shopping Cart</h1>
+
   @if (cartItems.length === 0) {
+
     <div class="empty-cart">
+
       <h2>Your cart is empty</h2>
+
       <p>Add some products to your cart.</p>
-      <a routerLink="/products" class="continue-shopping">Continue Shopping</a>
+
+      <a
+        routerLink="/products"
+        class="continue-shopping">
+        Continue Shopping
+      </a>
+
     </div>
+
   } @else {
+
     <div class="cart-content">
+
       <div class="cart-items">
+
         @for (item of cartItems; track item.product.id) {
+
           <div class="cart-item">
+
             <div class="product-info">
+
               <h2>{{ item.product.name }}</h2>
+
               <p>{{ item.product.description }}</p>
+
               <strong>€{{ item.product.price }}</strong>
+
             </div>
+
+
             <div class="quantity">
-              <button (click)="decreaseQuantity(item.product.id)">−</button>
+
+              <button
+                type="button"
+                (click)="decreaseQuantity(item.product.id)">
+                −
+              </button>
+
               <span>{{ item.quantity }}</span>
-              <button (click)="increaseQuantity(item.product.id)">+</button>
+
+              <button
+                type="button"
+                (click)="increaseQuantity(item.product.id)">
+                +
+              </button>
+
             </div>
-            <div class="item-total">€{{ (item.product.price * item.quantity).toFixed(2) }}</div>
-            <button class="remove-button"(click)="removeFromCart(item.product.id)">Remove</button>
+
+
+            <div class="item-total">
+              €{{ (item.product.price * item.quantity).toFixed(2) }}
+            </div>
+
+
+            <button
+              class="remove-button"
+              type="button"
+              (click)="removeFromCart(item.product.id)">
+              Remove
+            </button>
+
           </div>
+
         }
+
       </div>
+
+
       <div class="cart-summary">
+
         <h2>Order Summary</h2>
+
         <div class="total">
+
           <span>Total:</span>
-          <strong>€{{ getTotal().toFixed(2) }}</strong>
+
+          <strong>
+            €{{ getTotal().toFixed(2) }}
+          </strong>
+
         </div>
-        <button class="checkout-button">Checkout</button>
-        <button class="clear-button"(click)="clearCart()">Clear Cart</button>
+
+
+        <button
+          class="checkout-button"
+          type="button"
+          (click)="checkout()"
+          [disabled]="loading">
+
+          @if (loading) {
+            Redirecting to checkout...
+          } @else {
+            Checkout
+          }
+
+        </button>
+
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearCart()">
+          Clear Cart
+        </button>
+
       </div>
-  </div>
+
+    </div>
+
   }
+
 </section>

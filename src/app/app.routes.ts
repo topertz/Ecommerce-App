@@ -4,6 +4,7 @@ import { Products } from './pages/products/products';
 import { Cart } from './pages/cart/cart';
 import { ProductDetail } from './pages/product-detail/product-detail';
 import { Admin } from './pages/admin/admin';
+import { Success } from './pages/success/success';
 
 export const routes: Routes = [
     {
@@ -25,5 +26,9 @@ export const routes: Routes = [
     {
         path: 'admin',
         component: Admin
+    },
+    {
+        path: 'success',
+        component: Success
     }
 ];
