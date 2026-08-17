@@ -1,0 +1,106 @@
+.admin-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.admin-page h1 {
+  margin-bottom: 30px;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 20px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  background: #fff;
+}
+
+.product-info h2 {
+  margin: 0 0 8px;
+}
+
+.product-info p {
+  margin: 0 0 8px;
+  color: #666;
+}
+
+.product-info span {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.product-actions button {
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.product-actions button:hover {
+  opacity: 0.8;
+}
+
+.edit-form {
+  margin-top: 30px;
+  padding: 25px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.edit-form h2 {
+  margin-bottom: 20px;
+}
+
+.edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.edit-form input,
+.edit-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.edit-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.edit-actions button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

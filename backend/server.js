@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const db = require('./database');
 
 const app = express();
 
@@ -8,78 +9,161 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-const products = [
-  {
-    id: 1,
-    name: 'Laptop',
-    price: 899.99,
-    description: 'Powerful laptop for work, study and gaming.',
-    image: 'products/laptop.jpg',
-    category: 'Electronics'
-  },
-  {
-    id: 2,
-    name: 'Mechanical Keyboard',
-    price: 79.99,
-    description: 'Mechanical keyboard with RGB lighting.',
-    image: 'products/keyboard.jpg',
-    category: 'Accessories'
-  },
-  {
-    id: 3,
-    name: 'Gaming Mouse',
-    price: 39.99,
-    description: 'Fast and precise gaming mouse.',
-    image: 'products/mouse.jpg',
-    category: 'Accessories'
-  },
-  {
-    id: 4,
-    name: 'Gaming Headset',
-    price: 59.99,
-    description: 'Immersive gaming headset with clear sound.',
-    image: 'products/headset.jpg',
-    category: 'Accessories'
-  },
-  {
-    id: 5,
-    name: 'Smartphone',
-    price: 699.99,
-    description: 'Modern smartphone with a high-quality display.',
-    image: 'products/smartphone.jpg',
-    category: 'Electronics'
-  },
-  {
-    id: 6,
-    name: 'Monitor',
-    price: 249.99,
-    description: '27-inch monitor with excellent image quality.',
-    image: 'products/monitor.jpg',
-    category: 'Electronics'
-  }
-];
+
+// GET all products
 
 app.get('/api/products', (req, res) => {
+
+  const products = db
+    .prepare('SELECT * FROM products')
+    .all();
+
   res.json(products);
+
 });
+
+
+// GET product by ID
 
 app.get('/api/products/:id', (req, res) => {
 
   const id = Number(req.params.id);
 
-  const product = products.find(
-    product => product.id === id
-  );
+  const product = db
+    .prepare('SELECT * FROM products WHERE id = ?')
+    .get(id);
 
   if (!product) {
+
     return res.status(404).json({
       message: 'Product not found'
     });
+
   }
 
   res.json(product);
+
 });
 
+
+// POST new product
+
+app.post('/api/products', (req, res) => {
+
+  const {
+    name,
+    price,
+    description,
+    image,
+    category
+  } = req.body;
+
+  const result = db
+    .prepare(`
+      INSERT INTO products
+      (name, price, description, image, category)
+      VALUES (?, ?, ?, ?, ?)
+    `)
+    .run(
+      name,
+      price,
+      description,
+      image,
+      category
+    );
+
+  const newProduct = db
+    .prepare('SELECT * FROM products WHERE id = ?')
+    .get(result.lastInsertRowid);
+
+  res.status(201).json(newProduct);
+
+});
+
+app.put('/api/products/:id', (req, res) => {
+
+  const id = Number(req.params.id);
+
+  const {
+    name,
+    price,
+    description,
+    image,
+    category
+  } = req.body;
+
+  const product = db
+    .prepare('SELECT * FROM products WHERE id = ?')
+    .get(id);
+
+  if (!product) {
+
+    return res.status(404).json({
+      message: 'Product not found'
+    });
+
+  }
+
+  db.prepare(`
+    UPDATE products
+    SET
+      name = ?,
+      price = ?,
+      description = ?,
+      image = ?,
+      category = ?
+    WHERE id = ?
+  `).run(
+    name,
+    price,
+    description,
+    image,
+    category,
+    id
+  );
+
+  const updatedProduct = db
+    .prepare('SELECT * FROM products WHERE id = ?')
+    .get(id);
+
+  res.json(updatedProduct);
+
+});
+
+// DELETE product
+
+app.delete('/api/products/:id', (req, res) => {
+
+  const id = Number(req.params.id);
+
+  const product = db
+    .prepare('SELECT * FROM products WHERE id = ?')
+    .get(id);
+
+  if (!product) {
+
+    return res.status(404).json({
+      message: 'Product not found'
+    });
+
+  }
+
+  db
+    .prepare('DELETE FROM products WHERE id = ?')
+    .run(id);
+
+  res.json({
+    message: 'Product deleted successfully',
+    product
+  });
+
+});
+
+
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+
+  console.log(
+    `Backend server running on http://localhost:${PORT}`
+  );
+
 });

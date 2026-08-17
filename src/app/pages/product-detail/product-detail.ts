@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Product } from '../../models/product';
 import { CartService } from '../../services/cart';
@@ -16,17 +16,35 @@ export class ProductDetail {
   private cartService = inject(CartService);
   private productService = inject(ProductService);
 
-  product: Product | undefined;
+  product = signal<Product | undefined>(undefined);
 
   constructor() {
 
-    const id = Number(
-      this.route.snapshot.paramMap.get('id')
-    );
+    this.route.paramMap.subscribe(params => {
 
-    this.productService.getProductById(id).subscribe(product => {
+      const id = Number(params.get('id'));
 
-      this.product = product;
+      console.log('Product ID:', id);
+
+      this.productService.getProductById(id).subscribe({
+
+        next: (product) => {
+
+          console.log('Product:', product);
+
+          this.product.set(product);
+
+        },
+
+        error: (error) => {
+
+          console.error('API error:', error);
+
+          this.product.set(undefined);
+
+        }
+
+      });
 
     });
 
@@ -34,8 +52,10 @@ export class ProductDetail {
 
   addToCart(): void {
 
-    if (this.product) {
-      this.cartService.addToCart(this.product);
+    const product = this.product();
+
+    if (product) {
+      this.cartService.addToCart(product);
     }
 
   }

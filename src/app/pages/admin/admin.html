@@ -1,0 +1,43 @@
+<section class="admin-page">
+
+  <h1>Product Management</h1>
+
+  <p>Products loaded: {{ products.length }}</p>
+
+  <div class="products-list">
+
+    @for (product of products; track product.id) {
+
+      <div class="product-row">
+
+        <div class="product-info">
+
+          <h2>{{ product.name }}</h2>
+
+          <p>{{ product.description }}</p>
+
+          <span>€{{ product.price.toFixed(2) }}</span>
+
+        </div>
+
+        <div class="product-actions">
+
+          <button
+          type="button"
+          (click)="editProduct(product)">
+          Edit
+        </button>
+
+          <button (click)="deleteProduct(product.id)">
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>
