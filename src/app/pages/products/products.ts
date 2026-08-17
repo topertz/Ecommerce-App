@@ -1,0 +1,101 @@
+import { Component, signal, computed } from '@angular/core';
+import { Product } from '../../models/product';
+import { CartService } from '../../services/cart';
+
+@Component({
+  selector: 'app-products',
+  imports: [],
+  templateUrl: './products.html',
+  styleUrl: './products.css'
+})
+export class Products {
+
+  products: Product[] = [
+    {
+      id: 1,
+      name: 'Laptop',
+      price: 899.99,
+      description: 'Powerful laptop for work, study and gaming.',
+      image: 'products/laptop.jpg',
+      category: 'Electronics'
+    },
+    {
+      id: 2,
+      name: 'Mechanical Keyboard',
+      price: 79.99,
+      description: 'Mechanical keyboard with RGB lighting.',
+      image: 'products/keyboard.jpg',
+      category: 'Accessories'
+    },
+    {
+      id: 3,
+      name: 'Gaming Mouse',
+      price: 39.99,
+      description: 'Fast and precise gaming mouse.',
+      image: 'products/mouse.jpg',
+      category: 'Accessories'
+    },
+    {
+      id: 4,
+      name: 'Gaming Headset',
+      price: 59.99,
+      description: 'Immersive gaming headset with clear sound.',
+      image: 'products/headset.jpg',
+      category: 'Accessories'
+    },
+    {
+      id: 5,
+      name: 'Smartphone',
+      price: 699.99,
+      description: 'Modern smartphone with a high-quality display.',
+      image: 'products/smartphone.jpg',
+      category: 'Electronics'
+    },
+    {
+      id: 6,
+      name: 'Monitor',
+      price: 249.99,
+      description: '27-inch monitor with excellent image quality.',
+      image: 'products/monitor.jpg',
+      category: 'Electronics'
+    }
+  ];
+
+  searchTerm = signal('');
+
+selectedCategory = signal('All');
+
+categories = [
+  'All',
+  'Electronics',
+  'Accessories'
+];
+
+filteredProducts = computed(() => {
+
+  const search = this.searchTerm().toLowerCase().trim();
+  const category = this.selectedCategory();
+
+  return this.products.filter(product => {
+
+    const matchesSearch =
+      product.name.toLowerCase().includes(search) ||
+      product.description.toLowerCase().includes(search) ||
+      product.category.toLowerCase().includes(search);
+
+    const matchesCategory =
+      category === 'All' ||
+      product.category === category;
+
+    return matchesSearch && matchesCategory;
+
+  });
+
+});
+
+  constructor(private cartService: CartService) {}
+
+  addToCart(product: Product): void {
+    this.cartService.addToCart(product);
+  }
+}

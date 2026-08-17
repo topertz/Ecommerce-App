@@ -1,0 +1,18 @@
+<nav class="navbar">
+    <div class="navbar-container">
+        <a class="logo" routerLink="/">
+            🛒 My E-Shop
+        </a>
+        <div class="nav-links">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                Home
+            </a>
+            <a routerLink="/products" routerLinkActive="active">
+                Products 
+            </a>
+            <a routerLink="/cart" routerLinkActive="active">
+                Cart 🛒 ({{ cartService.itemCount() }})
+            </a>
+        </div>
+    </div>
+</nav>

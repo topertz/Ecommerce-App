@@ -1,0 +1,32 @@
+<section class="products-page">
+    <div class="products-header">
+        <h1>Our Products</h1>
+        <p>Find the perfect products for you.</p>
+    </div>
+        <div class="search-container">
+        <input type="text" placeholder="Search products..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)">
+    </div>
+    <div class="category-filter">
+    <span>Category:</span>
+    @for (category of categories; track category) {
+      <button [class.active]="selectedCategory() === category" (click)="selectedCategory.set(category)">{{ category }}</button>
+    }
+  </div>
+    <h1>Products</h1>
+    <div class="products-grid">
+        @for (product of filteredProducts(); track product.id) {
+            <div class="product-card">
+                <div class="product-image">{{ product.name }}</div>
+                <div class="product-info">
+                    <h2>{{ product.name }}</h2>
+                    <p>{{ product.description }}</p>
+                    <span class="category">{{ product.category }}</span>
+                    <div class="product-bottom">
+                        <strong>€{{ product.price }}</strong>
+                        <button (click)="addToCart(product)">Add to cart</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
