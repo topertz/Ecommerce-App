@@ -1,0 +1,31 @@
+<section class="product-detail-page">
+  @if (product) {
+    <a routerLink="/products" class="back-link">
+      ← Back to products
+    </a>
+    <div class="product-detail">
+      <div class="product-image">
+        <img
+          [src]="product.image"
+          [alt]="product.name">
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category }}</span>
+        <h1>{{ product.name }}</h1>
+        <p class="description">{{ product.description }}</p>
+        <div class="price">€{{ product.price.toFixed(2) }}</div>
+        <button class="add-button" (click)="addToCart()">
+          Add to cart 🛒
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="not-found">
+      <h1>Product not found</h1>
+      <p>The product you're looking for doesn't exist.</p>
+      <a routerLink="/products">
+        Back to products
+      </a>
+    </div>
+  }
+</section>

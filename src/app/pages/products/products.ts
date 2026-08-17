@@ -1,101 +1,76 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Product } from '../../models/product';
 import { CartService } from '../../services/cart';
+import { ProductService } from '../../services/product';
 
 @Component({
   selector: 'app-products',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './products.html',
   styleUrl: './products.css'
 })
 export class Products {
 
-  products: Product[] = [
-    {
-      id: 1,
-      name: 'Laptop',
-      price: 899.99,
-      description: 'Powerful laptop for work, study and gaming.',
-      image: 'products/laptop.jpg',
-      category: 'Electronics'
-    },
-    {
-      id: 2,
-      name: 'Mechanical Keyboard',
-      price: 79.99,
-      description: 'Mechanical keyboard with RGB lighting.',
-      image: 'products/keyboard.jpg',
-      category: 'Accessories'
-    },
-    {
-      id: 3,
-      name: 'Gaming Mouse',
-      price: 39.99,
-      description: 'Fast and precise gaming mouse.',
-      image: 'products/mouse.jpg',
-      category: 'Accessories'
-    },
-    {
-      id: 4,
-      name: 'Gaming Headset',
-      price: 59.99,
-      description: 'Immersive gaming headset with clear sound.',
-      image: 'products/headset.jpg',
-      category: 'Accessories'
-    },
-    {
-      id: 5,
-      name: 'Smartphone',
-      price: 699.99,
-      description: 'Modern smartphone with a high-quality display.',
-      image: 'products/smartphone.jpg',
-      category: 'Electronics'
-    },
-    {
-      id: 6,
-      name: 'Monitor',
-      price: 249.99,
-      description: '27-inch monitor with excellent image quality.',
-      image: 'products/monitor.jpg',
-      category: 'Electronics'
-    }
-  ];
+  private cartService = inject(CartService);
+  private productService = inject(ProductService);
+
+  products = signal<Product[]>([]);
 
   searchTerm = signal('');
 
-selectedCategory = signal('All');
+  selectedCategory = signal('All');
 
-categories = [
-  'All',
-  'Electronics',
-  'Accessories'
-];
+  categories = signal<string[]>(['All']);
 
-filteredProducts = computed(() => {
+  filteredProducts = computed(() => {
 
-  const search = this.searchTerm().toLowerCase().trim();
-  const category = this.selectedCategory();
+    const products = this.products();
 
-  return this.products.filter(product => {
+    const search = this.searchTerm()
+      .toLowerCase()
+      .trim();
 
-    const matchesSearch =
-      product.name.toLowerCase().includes(search) ||
-      product.description.toLowerCase().includes(search) ||
-      product.category.toLowerCase().includes(search);
+    const category = this.selectedCategory();
 
-    const matchesCategory =
-      category === 'All' ||
-      product.category === category;
+    return products.filter(product => {
 
-    return matchesSearch && matchesCategory;
+      const matchesSearch =
+        product.name.toLowerCase().includes(search) ||
+        product.description.toLowerCase().includes(search) ||
+        product.category.toLowerCase().includes(search);
+
+      const matchesCategory =
+        category === 'All' ||
+        product.category === category;
+
+      return matchesSearch && matchesCategory;
+
+    });
 
   });
 
-});
+  constructor() {
 
-  constructor(private cartService: CartService) {}
+    this.productService.getProducts().subscribe(products => {
+
+      this.products.set(products);
+
+      const categories = [
+        'All',
+        ...new Set(
+          products.map(product => product.category)
+        )
+      ];
+
+      this.categories.set(categories);
+
+    });
+
+  }
 
   addToCart(product: Product): void {
     this.cartService.addToCart(product);
   }
+
 }

@@ -8,7 +8,7 @@
     </div>
     <div class="category-filter">
     <span>Category:</span>
-    @for (category of categories; track category) {
+    @for (category of categories(); track category) {
       <button [class.active]="selectedCategory() === category" (click)="selectedCategory.set(category)">{{ category }}</button>
     }
   </div>
@@ -18,7 +18,13 @@
             <div class="product-card">
                 <div class="product-image">{{ product.name }}</div>
                 <div class="product-info">
-                    <h2>{{ product.name }}</h2>
+                    <h2>
+                    <a
+                        [routerLink]="['/products', product.id]"
+                        class="product-link">
+                        {{ product.name }}
+                    </a>
+                    </h2>
                     <p>{{ product.description }}</p>
                     <span class="category">{{ product.category }}</span>
                     <div class="product-bottom">
