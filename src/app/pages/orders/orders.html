@@ -1,0 +1,169 @@
+<section class="orders-page">
+
+  <h1>Orders</h1>
+
+
+  @if (loading) {
+
+    <p>Loading orders...</p>
+
+  } @else if (orders.length === 0) {
+
+    <div class="empty-orders">
+
+      <h2>No orders yet</h2>
+
+      <p>
+        Orders will appear here after a successful payment.
+      </p>
+
+    </div>
+
+  } @else {
+
+    <div class="orders-list">
+
+      @for (order of orders; track order.id) {
+
+        <button
+          class="order-card"
+          type="button"
+          (click)="selectOrder(order)">
+
+          <div class="order-header">
+
+            <h2>
+              Order #{{ order.id }}
+            </h2>
+
+            <span class="status">
+              {{ order.status }}
+            </span>
+
+          </div>
+
+
+          <div class="order-info">
+
+            <p>
+              <strong>Customer:</strong>
+              {{ order.customer_name || 'Unknown' }}
+            </p>
+
+            <p>
+              <strong>Email:</strong>
+              {{ order.customer_email || 'Unknown' }}
+            </p>
+
+            <p>
+              <strong>Total:</strong>
+              €{{ order.total.toFixed(2) }}
+            </p>
+
+            <p>
+              <strong>Date:</strong>
+              {{ order.created_at }}
+            </p>
+
+          </div>
+
+        </button>
+
+      }
+
+    </div>
+
+  }
+
+
+  @if (selectedOrder) {
+
+    <div class="order-details">
+
+      <div class="details-header">
+
+        <h2>
+          Order #{{ selectedOrder.id }}
+        </h2>
+
+        <button
+          type="button"
+          (click)="closeOrder()">
+          Close
+        </button>
+
+      </div>
+
+
+      <div class="customer-details">
+
+        <h3>Customer</h3>
+
+        <p>
+          {{ selectedOrder.customer_name || 'Unknown' }}
+        </p>
+
+        <p>
+          {{ selectedOrder.customer_email || 'Unknown' }}
+        </p>
+
+      </div>
+
+
+      <h3>Products</h3>
+
+
+      @if (loadingItems) {
+
+        <p>Loading products...</p>
+
+      } @else {
+
+        <div class="order-items">
+
+          @for (item of orderItems; track item.id) {
+
+            <div class="order-item">
+
+              <div>
+
+                <strong>
+                  {{ item.product_name }}
+                </strong>
+
+                <p>
+                  €{{ item.price.toFixed(2) }}
+                  ×
+                  {{ item.quantity }}
+                </p>
+
+              </div>
+
+              <strong>
+                €{{ (item.price * item.quantity).toFixed(2) }}
+              </strong>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+
+      <div class="order-total">
+
+        <span>Total:</span>
+
+        <strong>
+          €{{ selectedOrder.total.toFixed(2) }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  }
+
+</section>

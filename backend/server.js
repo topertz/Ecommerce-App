@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const bcrypt = require('bcrypt');
 console.log(
   'Stripe key loaded:',
   process.env.STRIPE_SECRET_KEY ? 'YES' : 'NO'
@@ -13,6 +14,9 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
+app.use('/api/stripe-webhook', express.raw({
+  type: 'application/json'
+}));
 app.use(express.json());
 
 // GET all products
@@ -108,17 +112,23 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
 
-      payment_method_types: ['card'],
+    payment_method_types: ['card'],
 
-      line_items: lineItems,
+    line_items: lineItems,
 
-      mode: 'payment',
+    mode: 'payment',
 
-      success_url: 'http://localhost:4200/success',
+    success_url: 'http://localhost:4200/success',
 
-      cancel_url: 'http://localhost:4200/cart'
+    cancel_url: 'http://localhost:4200/cart',
 
-    });
+    customer_creation: 'always',
+
+    metadata: {
+      items: JSON.stringify(items)
+    }
+
+  });
 
 
     res.json({
@@ -216,6 +226,232 @@ app.delete('/api/products/:id', (req, res) => {
 
 });
 
+app.post(
+  '/api/stripe-webhook',
+  (req, res) => {
+
+    const signature = req.headers['stripe-signature'];
+
+    let event;
+
+    try {
+
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+
+    } catch (error) {
+
+      console.error(
+        'WEBHOOK SIGNATURE ERROR:',
+        error.message
+      );
+
+      return res.status(400).send(
+        `Webhook Error: ${error.message}`
+      );
+
+    }
+
+
+    if (event.type === 'checkout.session.completed') {
+
+  const session = event.data.object;
+
+  console.log('PAYMENT COMPLETED:', session.id);
+
+
+  const customerName =
+    session.customer_details?.name || null;
+
+  const customerEmail =
+    session.customer_details?.email || null;
+
+  const total =
+    session.amount_total / 100;
+
+
+  const items =
+    JSON.parse(session.metadata.items);
+
+
+  const createOrder = db.transaction(() => {
+
+    const orderResult = db
+      .prepare(`
+        INSERT INTO orders
+        (
+          customer_name,
+          customer_email,
+          total,
+          status,
+          stripe_session_id
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `)
+      .run(
+        customerName,
+        customerEmail,
+        total,
+        'paid',
+        session.id
+      );
+
+
+    const orderId =
+      orderResult.lastInsertRowid;
+
+
+    const insertItem = db.prepare(`
+      INSERT INTO order_items
+      (
+        order_id,
+        product_id,
+        product_name,
+        price,
+        quantity
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+
+    for (const item of items) {
+
+      insertItem.run(
+        orderId,
+        item.id,
+        item.name,
+        item.price,
+        item.quantity
+      );
+
+    }
+
+
+    return orderId;
+
+  });
+
+
+  const orderId = createOrder();
+
+
+  console.log(
+    'ORDER CREATED:',
+    orderId
+  );
+
+}
+
+
+    res.json({
+      received: true
+    });
+
+  }
+);
+
+app.get('/api/orders', (req, res) => {
+
+  const orders = db
+    .prepare(`
+      SELECT *
+      FROM orders
+      ORDER BY created_at DESC
+    `)
+    .all();
+
+  res.json(orders);
+
+});
+
+app.get('/api/orders/:id/items', (req, res) => {
+
+  const orderId = Number(req.params.id);
+
+  const items = db
+    .prepare(`
+      SELECT *
+      FROM order_items
+      WHERE order_id = ?
+    `)
+    .all(orderId);
+
+  res.json(items);
+
+});
+
+app.post('/api/login', async (req, res) => {
+
+  try {
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+
+      return res.status(400).json({
+        message: 'Username and password are required'
+      });
+
+    }
+
+
+    const user = db
+      .prepare(`
+        SELECT *
+        FROM users
+        WHERE username = ?
+      `)
+      .get(username);
+
+
+    if (!user) {
+
+      return res.status(401).json({
+        message: 'Invalid username or password'
+      });
+
+    }
+
+
+    const passwordMatches =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
+
+
+    if (!passwordMatches) {
+
+      return res.status(401).json({
+        message: 'Invalid username or password'
+      });
+
+    }
+
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+
+    console.error('LOGIN ERROR:', error);
+
+    res.status(500).json({
+      message: 'Login failed'
+    });
+
+  }
+
+});
 
 app.listen(PORT, () => {
 

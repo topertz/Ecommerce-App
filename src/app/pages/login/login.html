@@ -1,0 +1,78 @@
+<section class="login-page">
+
+  <div class="login-card">
+
+    <h1>Admin Login</h1>
+
+    <p>
+      Sign in to access the admin panel.
+    </p>
+
+
+    @if (errorMessage) {
+
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+
+    }
+
+
+    <form (submit)="login(); $event.preventDefault()">
+
+      <div class="form-group">
+
+        <label for="username">
+          Username
+        </label>
+
+        <input
+          id="username"
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          required>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="password">
+          Password
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required>
+
+      </div>
+
+
+      <button
+        type="submit"
+        [disabled]="loading">
+
+        @if (loading) {
+          Logging in...
+        } @else {
+          Login
+        }
+
+      </button>
+
+    </form>
+
+
+    <a
+      routerLink="/"
+      class="back-link">
+      Back to Store
+    </a>
+
+  </div>
+
+</section>

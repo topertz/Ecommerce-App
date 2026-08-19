@@ -43,5 +43,10 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Environment variables
-backend/.env
+# Backend
+/backend/node_modules/
+/backend/.env
+/backend/ecommerce.db
+
+# Admin setup script
+/backend/create-admin.js
