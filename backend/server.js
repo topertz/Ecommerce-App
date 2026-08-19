@@ -4,6 +4,11 @@ const cors = require('cors');
 const db = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const {
+  authenticateToken,
+  requireAdmin
+} = require('./auth-middleware');
 console.log(
   'Stripe key loaded:',
   process.env.STRIPE_SECRET_KEY ? 'YES' : 'NO'
@@ -57,7 +62,7 @@ app.get('/api/products/:id', (req, res) => {
 
 // POST new product
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', authenticateToken, requireAdmin, (req, res) => {
 
   const {
     name,
@@ -147,7 +152,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 });
 
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
 
   const id = Number(req.params.id);
 
@@ -199,7 +204,7 @@ app.put('/api/products/:id', (req, res) => {
 
 // DELETE product
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
 
   const id = Number(req.params.id);
 
@@ -353,7 +358,7 @@ app.post(
   }
 );
 
-app.get('/api/orders', (req, res) => {
+app.get('/api/orders', authenticateToken, requireAdmin, (req, res) => {
 
   const orders = db
     .prepare(`
@@ -367,7 +372,7 @@ app.get('/api/orders', (req, res) => {
 
 });
 
-app.get('/api/orders/:id/items', (req, res) => {
+app.get('/api/orders/:id/items', authenticateToken, requireAdmin, (req, res) => {
 
   const orderId = Number(req.params.id);
 
@@ -383,7 +388,7 @@ app.get('/api/orders/:id/items', (req, res) => {
 
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.put('/api/orders/:id/status', authenticateToken, requireAdmin, (req, res) => {
 
   const orderId = Number(req.params.id);
 
@@ -483,14 +488,27 @@ app.post('/api/login', async (req, res) => {
     }
 
 
-    res.json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role
-      }
-    });
+    const token = jwt.sign(
+  {
+    id: user.id,
+    username: user.username,
+    role: user.role
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: '2h'
+  }
+);
+
+res.json({
+  message: 'Login successful',
+  token,
+  user: {
+    id: user.id,
+    username: user.username,
+    role: user.role
+  }
+});
 
   } catch (error) {
 

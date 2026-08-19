@@ -15,6 +15,7 @@ export class AdminDashboard {
   logout(): void {
 
     localStorage.removeItem('adminUser');
+    localStorage.removeItem('token');
 
     this.router.navigate(['/login']);
 

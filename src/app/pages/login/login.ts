@@ -44,6 +44,11 @@ export class Login {
             JSON.stringify(response.user)
           );
 
+          localStorage.setItem(
+            'token',
+            response.token
+          );
+
           this.loading = false;
 
           this.router.navigate(['/admin']);
