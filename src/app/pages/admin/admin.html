@@ -4,6 +4,7 @@
 
   <p>Products loaded: {{ products.length }}</p>
 
+
   <div class="products-list">
 
     @for (product of products; track product.id) {
@@ -16,19 +17,24 @@
 
           <p>{{ product.description }}</p>
 
-          <span>€{{ product.price.toFixed(2) }}</span>
+          <span>
+            €{{ product.price.toFixed(2) }}
+          </span>
 
         </div>
+
 
         <div class="product-actions">
 
           <button
-          type="button"
-          (click)="editProduct(product)">
-          Edit
-        </button>
+            type="button"
+            (click)="editProduct(product)">
+            Edit
+          </button>
 
-          <button (click)="deleteProduct(product.id)">
+          <button
+            type="button"
+            (click)="deleteProduct(product.id)">
             Delete
           </button>
 
@@ -39,5 +45,104 @@
     }
 
   </div>
+
+
+  @if (editingProduct) {
+
+    <div class="edit-form">
+
+      <h2>Edit Product</h2>
+
+
+      <div class="form-group">
+
+        <label for="name">
+          Name
+        </label>
+
+        <input
+          id="name"
+          type="text"
+          [(ngModel)]="editingProduct.name">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          [(ngModel)]="editingProduct.description">
+        </textarea>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="price">
+          Price
+        </label>
+
+        <input
+          id="price"
+          type="number"
+          step="0.01"
+          [(ngModel)]="editingProduct.price">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="image">
+          Image
+        </label>
+
+        <input
+          id="image"
+          type="text"
+          [(ngModel)]="editingProduct.image">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="category">
+          Category
+        </label>
+
+        <input
+          id="category"
+          type="text"
+          [(ngModel)]="editingProduct.category">
+
+      </div>
+
+
+      <div class="edit-actions">
+
+        <button
+          type="button"
+          (click)="saveProduct()">
+          Save
+        </button>
+
+        <button
+          type="button"
+          (click)="cancelEdit()">
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
+
+  }
 
 </section>

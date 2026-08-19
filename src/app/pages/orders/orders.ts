@@ -122,4 +122,42 @@ export class Orders {
 
   }
 
+  updateStatus(status: string): void {
+
+  if (!this.selectedOrder) {
+    return;
+  }
+
+  this.http
+    .put<Order>(
+      `http://localhost:3000/api/orders/${this.selectedOrder.id}/status`,
+      { status }
+    )
+    .subscribe({
+
+      next: (updatedOrder) => {
+
+        this.selectedOrder = updatedOrder;
+
+        this.orders = this.orders.map(order =>
+          order.id === updatedOrder.id
+            ? updatedOrder
+            : order
+        );
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'UPDATE ORDER STATUS ERROR:',
+          error
+        );
+
+      }
+
+    });
+
+}
+
 }

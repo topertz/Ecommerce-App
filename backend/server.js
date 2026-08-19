@@ -383,6 +383,57 @@ app.get('/api/orders/:id/items', (req, res) => {
 
 });
 
+app.put('/api/orders/:id/status', (req, res) => {
+
+  const orderId = Number(req.params.id);
+
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    'pending',
+    'paid',
+    'processing',
+    'shipped',
+    'completed',
+    'cancelled'
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+
+    return res.status(400).json({
+      message: 'Invalid order status'
+    });
+
+  }
+
+  const order = db
+    .prepare('SELECT * FROM orders WHERE id = ?')
+    .get(orderId);
+
+  if (!order) {
+
+    return res.status(404).json({
+      message: 'Order not found'
+    });
+
+  }
+
+  db
+    .prepare(`
+      UPDATE orders
+      SET status = ?
+      WHERE id = ?
+    `)
+    .run(status, orderId);
+
+  const updatedOrder = db
+    .prepare('SELECT * FROM orders WHERE id = ?')
+    .get(orderId);
+
+  res.json(updatedOrder);
+
+});
+
 app.post('/api/login', async (req, res) => {
 
   try {

@@ -104,3 +104,43 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+.edit-form {
+  margin-top: 40px;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-actions button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
