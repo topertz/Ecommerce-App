@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const db = require('./database');
@@ -15,6 +16,11 @@ console.log(
 );
 
 const app = express();
+
+app.use(
+    '/products',
+    express.static(path.join(__dirname, 'products'))
+);
 
 const PORT = 3000;
 
