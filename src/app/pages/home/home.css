@@ -84,3 +84,10 @@
 .product-card strong {
   font-size: 20px;
 }
+
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
