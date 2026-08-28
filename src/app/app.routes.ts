@@ -7,6 +7,7 @@ import { Admin } from './pages/admin/admin';
 import { Success } from './pages/success/success';
 import { Orders } from './pages/orders/orders';
 import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
+import { Register } from './pages/register/register';
 import { Login } from './pages/login/login';
 import { adminGuard } from './guards/admin-guard';
 
@@ -45,6 +46,10 @@ export const routes: Routes = [
     {
         path: 'success',
         component: Success
+    },
+    {
+        path: 'register',
+        component: Register
     },
     {
         path: 'login',

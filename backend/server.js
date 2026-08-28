@@ -445,6 +445,83 @@ app.put('/api/orders/:id/status', authenticateToken, requireAdmin, (req, res) =>
 
 });
 
+app.post('/api/register', async (req, res) => {
+
+  try {
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        message: 'Username and password are required'
+      });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({
+        message: 'Username must be at least 3 characters'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    const existingUser = db
+      .prepare(`
+        SELECT *
+        FROM users
+        WHERE username = ?
+      `)
+      .get(username);
+
+    if (existingUser) {
+      return res.status(409).json({
+        message: 'Username already exists'
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = db
+      .prepare(`
+        INSERT INTO users
+        (username, password, role)
+        VALUES (?, ?, ?)
+      `)
+      .run(
+        username,
+        hashedPassword,
+        'admin'
+      );
+
+    const user = db
+      .prepare(`
+        SELECT id, username, role
+        FROM users
+        WHERE id = ?
+      `)
+      .get(result.lastInsertRowid);
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user
+    });
+
+  } catch (error) {
+
+    console.error('REGISTER ERROR:', error);
+
+    res.status(500).json({
+      message: 'Registration failed'
+    });
+
+  }
+
+});
+
 app.post('/api/login', async (req, res) => {
 
   try {
