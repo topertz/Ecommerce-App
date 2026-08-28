@@ -98,6 +98,38 @@
   background: #444;
 }
 
+.product-actions .edit-button {
+  background: #0d6efd;
+}
+
+.product-actions .edit-button:hover {
+  background: #0b5ed7;
+}
+
+.product-actions .delete-button {
+  background: #dc3545;
+}
+
+.product-actions .delete-button:hover {
+  background: #bb2d3b;
+}
+
+.edit-actions .save-button {
+  background: #198754;
+}
+
+.edit-actions .save-button:hover {
+  background: #157347;
+}
+
+.edit-actions .cancel-button {
+  background: #6c757d;
+}
+
+.edit-actions .cancel-button:hover {
+  background: #5c636a;
+}
+
 
 /* =========================
    EDIT MODAL
