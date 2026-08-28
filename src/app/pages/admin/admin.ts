@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Product } from '../../models/product';
 import { ProductService } from '../../services/product';
 import { FormsModule } from '@angular/forms';
@@ -13,108 +13,71 @@ export class Admin {
 
   private productService = inject(ProductService);
 
-  products: Product[] = [];
+  products = signal<Product[]>([]);
 
   editingProduct: Product | null = null;
 
-
   constructor() {
-
     this.loadProducts();
-
   }
-
 
   loadProducts(): void {
-
     this.productService.getProducts().subscribe({
-
       next: (products) => {
+        console.log('ADMIN PRODUCTS:', products);
+        console.log('ADMIN PRODUCT COUNT:', products.length);
 
-        this.products = products;
-
+        this.products.set(products);
       },
-
       error: (error) => {
-
         console.error('PRODUCT API ERROR:', error);
-
       }
-
     });
-
   }
-
 
   editProduct(product: Product): void {
-
     this.editingProduct = { ...product };
-
   }
-
 
   cancelEdit(): void {
-
     this.editingProduct = null;
-
   }
 
-
   saveProduct(): void {
-
     if (!this.editingProduct) {
       return;
     }
 
     const { id, ...productData } = this.editingProduct;
 
-    this.productService
-      .updateProduct(id, productData)
-      .subscribe({
-
-        next: (updatedProduct) => {
-
-          this.products = this.products.map(product =>
+    this.productService.updateProduct(id, productData).subscribe({
+      next: (updatedProduct) => {
+        this.products.update(products =>
+          products.map(product =>
             product.id === updatedProduct.id
               ? updatedProduct
               : product
-          );
-
-          this.editingProduct = null;
-
-        },
-
-        error: (error) => {
-
-          console.error('UPDATE ERROR:', error);
-
-        }
-
-      });
-
-  }
-
-
-  deleteProduct(id: number): void {
-
-    this.productService.deleteProduct(id).subscribe({
-
-      next: () => {
-
-        this.products = this.products.filter(
-          product => product.id !== id
+          )
         );
 
+        this.editingProduct = null;
       },
-
       error: (error) => {
-
-        console.error('DELETE ERROR:', error);
-
+        console.error('UPDATE ERROR:', error);
       }
-
     });
-
   }
 
+  deleteProduct(id: number): void {
+    this.productService.deleteProduct(id).subscribe({
+      next: () => {
+        this.products.update(products =>
+          products.filter(product => product.id !== id)
+        );
+      },
+      error: (error) => {
+        console.error('DELETE ERROR:', error);
+      }
+    });
+  }
 }
