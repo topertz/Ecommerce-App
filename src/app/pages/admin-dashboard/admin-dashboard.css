@@ -1,0 +1,44 @@
+.admin-dashboard {
+  padding: 40px;
+}
+
+.admin-dashboard h1 {
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  margin-bottom: 30px;
+}
+
+.admin-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  max-width: 900px;
+}
+
+.admin-card {
+  display: block;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.admin-card h2 {
+  margin-bottom: 10px;
+}
+
+.admin-card p {
+  margin-bottom: 20px;
+}
+
+.admin-card span {
+  font-weight: bold;
+}
+
+.logout-button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  cursor: pointer;
+}

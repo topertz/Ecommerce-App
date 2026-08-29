@@ -1,0 +1,115 @@
+<section class="admin-page">
+
+  <h1>Product Management</h1>
+
+  <p>Products loaded: {{ products().length }}</p>
+
+  <div class="delete-all-container">
+    <button
+      type="button"
+      class="delete-all-button"
+      (click)="deleteAllProducts()"
+      [disabled]="products().length === 0">
+      Delete All Products
+    </button>
+  </div>
+
+  <div class="products-list">
+
+    @for (product of products(); track product.id) {
+
+      <div class="product-row">
+
+        <div class="product-info">
+
+          <h2>{{ product.name }}</h2>
+
+          <p>{{ product.description }}</p>
+
+          <span>
+            €{{ product.price.toFixed(2) }}
+          </span>
+
+        </div>
+
+        <div class="product-image-container">
+          <img
+            [src]="'http://localhost:3000/' + product.image"
+            [alt]="product.name"
+            class="product-image">
+      </div>
+
+        <div class="product-actions">
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="editProduct(product)">
+            Edit
+          </button>
+
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteProduct(product.id)">
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+  @if (editingProduct) {
+
+    <div
+      class="modal-overlay"
+      (click)="cancelEdit()">
+
+      <div
+        class="edit-modal"
+        (click)="$event.stopPropagation()">
+
+        <h2>Edit Product</h2>
+
+        <div class="form-group">
+
+          <label for="name">
+            Name
+          </label>
+
+          <input
+            id="name"
+            type="text"
+            [(ngModel)]="editingProduct.name">
+
+        </div>
+
+        <div class="edit-actions">
+
+          <button
+            type="button"
+            class="save-button"
+            (click)="saveProduct()">
+            Save
+          </button>
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="cancelEdit()">
+            Cancel
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</section>

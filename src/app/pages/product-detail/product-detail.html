@@ -1,0 +1,96 @@
+<section class="product-detail-page">
+
+  @if (product()) {
+
+    <a routerLink="/products" class="back-link">
+      ← Back to products
+    </a>
+
+    <div class="product-detail">
+
+      <div class="product-image">
+        <img
+          [src]="'http://localhost:3000/' + product()!.image"
+          [alt]="product()!.name">
+      </div>
+
+      <div class="product-info">
+
+        <span class="product-category">
+          {{ product()!.category }}
+        </span>
+
+        <h1>
+          {{ product()!.name }}
+        </h1>
+
+        <p class="description">
+          {{ product()!.description }}
+        </p>
+
+        <div class="unit-price">
+          €{{ product()!.price.toFixed(2) }} / piece
+        </div>
+
+        <div class="quantity-section">
+
+          <span>Quantity:</span>
+
+          <div class="quantity-controls">
+
+            <button
+              class="quantity-button"
+              (click)="decreaseQuantity()"
+              [disabled]="quantity() === 1">
+              −
+            </button>
+
+            <span class="quantity">
+              {{ quantity() }}
+            </span>
+
+            <button
+              class="quantity-button"
+              (click)="increaseQuantity()">
+              +
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="price">
+          €{{ totalPrice().toFixed(2) }}
+        </div>
+
+        <button
+          class="add-button"
+          (click)="addToCart()">
+
+          Add {{ quantity() }} to cart 🛒
+
+        </button>
+
+      </div>
+
+    </div>
+
+  } @else {
+
+    <div class="not-found">
+
+      <h1>Product not found</h1>
+
+      <p>
+        The product you're looking for doesn't exist.
+      </p>
+
+      <a routerLink="/products">
+        Back to products
+      </a>
+
+    </div>
+
+  }
+
+</section>

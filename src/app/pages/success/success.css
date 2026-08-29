@@ -1,0 +1,43 @@
+.success-page {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.success-card {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  padding: 50px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.success-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 40px;
+}
+
+.success-card h1 {
+  margin-bottom: 15px;
+}
+
+.success-card p {
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.continue-shopping {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+}

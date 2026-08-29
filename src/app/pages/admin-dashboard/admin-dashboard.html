@@ -1,0 +1,54 @@
+<section class="admin-dashboard">
+
+  <h1>Admin Dashboard</h1>
+
+  <p class="subtitle">
+    Manage your ecommerce store.
+  </p>
+
+
+  <div class="admin-menu">
+
+    <a
+      routerLink="/admin/products"
+      class="admin-card">
+
+      <h2>Products</h2>
+
+      <p>
+        Add, edit and delete products.
+      </p>
+
+      <span>
+        Manage Products →
+      </span>
+
+    </a>
+
+
+    <a
+      routerLink="/admin/orders"
+      class="admin-card">
+
+      <h2>Orders</h2>
+
+      <p>
+        View customer orders and order details.
+      </p>
+
+      <span>
+        Manage Orders →
+      </span>
+
+    </a>
+
+  </div>
+
+  <button
+    class="logout-button"
+    type="button"
+    (click)="logout()">
+    Logout
+  </button>
+
+</section>
