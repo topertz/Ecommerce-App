@@ -94,6 +94,25 @@
   transition: background 0.2s;
 }
 
+.delete-all-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.delete-all-button {
+  margin-bottom: 25px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #dc3545;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
 .product-actions button:hover {
   background: #444;
 }
@@ -112,6 +131,15 @@
 
 .product-actions .delete-button:hover {
   background: #bb2d3b;
+}
+
+.delete-all-button:hover {
+  background: #bb2d3b;
+}
+
+.delete-all-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .edit-actions .save-button {

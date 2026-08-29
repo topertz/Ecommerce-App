@@ -80,4 +80,27 @@ export class Admin {
       }
     });
   }
+
+  deleteAllProducts(): void {
+    if (this.products().length === 0) {
+      return;
+    }
+
+    const confirmed = confirm(
+      'Are you sure want to delete ALL products? This action cannot be undone.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.productService.deleteAllProducts().subscribe({
+      next: () => {
+        this.products.set([]);
+      },
+      error: (error) => {
+        console.error('DELETE ALL PRODUCTS ERROR:', error);
+      }
+    });
+  }
 }

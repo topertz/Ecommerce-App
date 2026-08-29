@@ -208,6 +208,19 @@ app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
 
 });
 
+// DELETE ALL products
+
+app.delete('/api/products', authenticateToken, requireAdmin, (req, res) => {
+  const result = db
+  .prepare('DELETE FROM products')
+  .run();
+
+  res.json({
+    message: 'All products deleted successfully',
+    deletedCount: result.changes
+  });
+});
+
 // DELETE product
 
 app.delete('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
