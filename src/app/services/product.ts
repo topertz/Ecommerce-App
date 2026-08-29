@@ -63,7 +63,7 @@ export class ProductService {
 }
 
   deleteAllProducts(): Observable<any> {
-    return this.http.delete(`http://localhost:3000/products`);
+    return this.http.delete<any>(this.apiUrl);
   }
 
 }
