@@ -24,9 +24,6 @@ export class Admin {
   loadProducts(): void {
     this.productService.getProducts().subscribe({
       next: (products) => {
-        console.log('ADMIN PRODUCTS:', products);
-        console.log('ADMIN PRODUCT COUNT:', products.length);
-
         this.products.set(products);
       },
       error: (error) => {

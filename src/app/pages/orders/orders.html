@@ -1,25 +1,10 @@
 <section class="orders-page">
 
-  <h1>Orders</h1>
+  <h1>Orders Management</h1>
 
+  <p>Orders loaded: {{ orders.length }}</p>
 
-  @if (loading) {
-
-    <p>Loading orders...</p>
-
-  } @else if (orders.length === 0) {
-
-    <div class="empty-orders">
-
-      <h2>No orders yet</h2>
-
-      <p>
-        Orders will appear here after a successful payment.
-      </p>
-
-    </div>
-
-  } @else {
+  @if (orders.length > 0) {
 
     <div class="orders-list">
 
