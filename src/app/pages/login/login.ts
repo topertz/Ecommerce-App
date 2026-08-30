@@ -3,6 +3,16 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
+interface LoginResponse {
+  message: string;
+  token: string;
+  user: {
+    id: number;
+    username: string;
+    role: string;
+  };
+}
+
 @Component({
   selector: 'app-login',
   imports: [RouterLink, FormsModule],
@@ -22,16 +32,21 @@ export class Login {
 
 
   login(): void {
-
     this.errorMessage = '';
+
+    if (!this.username.trim() || !this.password) {
+      this.errorMessage = 'Username and password are required';
+      return;
+    }
+
     this.loading = true;
 
 
     this.http
-      .post<any>(
+      .post<LoginResponse>(
         'http://localhost:3000/api/login',
         {
-          username: this.username,
+          username: this.username.trim(),
           password: this.password
         }
       )
@@ -51,8 +66,11 @@ export class Login {
 
           this.loading = false;
 
-          this.router.navigate(['/admin']);
-
+          if (response.user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
 
         error: (error) => {

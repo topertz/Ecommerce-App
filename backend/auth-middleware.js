@@ -4,13 +4,13 @@ function authenticateToken(req, res, next) {
 
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({
       message: 'Authentication required'
     });
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.substring(7);
 
   if (!token) {
     return res.status(401).json({
@@ -18,11 +18,22 @@ function authenticateToken(req, res, next) {
     });
   }
 
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not configured.');
+
+    return res.status(500).json({
+      message: 'Server authentication is not configured'
+    });
+  }
+
   try {
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      {
+        algorithms: ['HS256']
+      }
     );
 
     req.user = decoded;

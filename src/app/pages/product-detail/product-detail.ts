@@ -56,12 +56,12 @@ export class ProductDetail {
 
   }
 
-  increaseQuantity(): void {
-    this.quantity.update(value => value + 1);
-  }
-
   decreaseQuantity(): void {
     this.quantity.update(value => Math.max(1, value - 1));
+  }
+
+    increaseQuantity(): void {
+    this.quantity.update(value => value + 1);
   }
 
   addToCart(): void {

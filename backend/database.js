@@ -39,7 +39,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'admin'
+    role TEXT NOT NULL DEFAULT 'user'
   );
 `);
 

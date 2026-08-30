@@ -24,7 +24,7 @@ app.use(
 
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({origin: 'http://localhost:4200'}));
 app.use('/api/stripe-webhook', express.raw({
   type: 'application/json'
 }));
@@ -106,7 +106,72 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     const { items } = req.body;
 
-    const lineItems = items.map(item => ({
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        message: 'Cart cannot be empty'
+      });
+    }
+
+    if (items.length > 50) {
+      return res.status(400).json({
+        message: 'Too many items'
+      });
+    }
+
+    const productIds = items.map(item => Number(item.id));
+
+    if (productIds.some(id => !Number.isInteger(id) || id <= 0)) {
+      return res.status(400).json({
+        message: 'Invalid product ID'
+      });
+    }
+
+    const uniqueProductIds = [...new Set(productIds)];
+
+    if (uniqueProductIds.length !== productIds.length) {
+      return res.status(400).json({
+        message: 'Duplicate products are not allowed'
+      });
+    }
+
+    const products = db
+      .prepare(`
+        SELECT id, name, price, description, image, category
+        FROM products
+        WHERE id IN (${uniqueProductIds.map(() => '?').join(',')})
+      `)
+      .all(...uniqueProductIds);
+
+    if (products.length !== uniqueProductIds.length) {
+      return res.status(400).json({
+        message: 'One or more products no longer exist'
+      });
+    }
+
+    const productMap = new Map(products.map(product => [product.id, product]));
+
+    const validatedItems = [];
+
+    for (const item of items) {
+      const product = productMap.get(Number(item.id));
+
+      const quantity = Number(item.quantity);
+
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+        return res.status(400).json({
+          message: 'Invalid product quantity'
+        });
+      }
+
+      validatedItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity
+      });
+    }
+
+    const lineItems = validatedItems.map(item => ({
       price_data: {
         currency: 'eur',
 
@@ -462,7 +527,9 @@ app.post('/api/register', async (req, res) => {
 
   try {
 
-    const { username, password } = req.body;
+    const username = typeof req.body.username === 'string' ? req.body.username.trim(): '';
+
+    const password = typeof req.body.password === 'string' ? req.body.password: '';
 
     if (!username || !password) {
       return res.status(400).json({
@@ -470,15 +537,21 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    if (username.length < 3) {
+    if (username.length < 3 || username.length > 30) {
       return res.status(400).json({
-        message: 'Username must be at least 3 characters'
+        message: 'Username must be between 3 and 30 characters'
       });
     }
 
-    if (password.length < 6) {
+    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
       return res.status(400).json({
-        message: 'Password must be at least 6 characters'
+        message: 'Username contains invalid characters'
+      });
+    }
+
+    if (password.length < 8 || password.length > 128) {
+      return res.status(400).json({
+        message: 'Password must be between 8 and 128 characters'
       });
     }
 
@@ -496,7 +569,7 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = db
       .prepare(`
@@ -507,7 +580,7 @@ app.post('/api/register', async (req, res) => {
       .run(
         username,
         hashedPassword,
-        'admin'
+        'user'
       );
 
     const user = db
@@ -539,7 +612,9 @@ app.post('/api/login', async (req, res) => {
 
   try {
 
-    const { username, password } = req.body;
+    const username = typeof req.body.username === 'string' ? req.body.username.trim(): '';
+
+    const password = typeof req.body.password === 'string' ? req.body.password: '';
 
     if (!username || !password) {
 
@@ -548,7 +623,6 @@ app.post('/api/login', async (req, res) => {
       });
 
     }
-
 
     const user = db
       .prepare(`
@@ -560,7 +634,6 @@ app.post('/api/login', async (req, res) => {
 
 
     if (!user) {
-
       return res.status(401).json({
         message: 'Invalid username or password'
       });
@@ -576,13 +649,18 @@ app.post('/api/login', async (req, res) => {
 
 
     if (!passwordMatches) {
-
       return res.status(401).json({
         message: 'Invalid username or password'
       });
-
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not configured.');
+
+      return res.status(500).json({
+        message: 'Server authentication is not configured'
+      });
+    }
 
     const token = jwt.sign(
   {
@@ -592,7 +670,8 @@ app.post('/api/login', async (req, res) => {
   },
   process.env.JWT_SECRET,
   {
-    expiresIn: '2h'
+    expiresIn: '2h',
+    algorithm: 'HS256'
   }
 );
 

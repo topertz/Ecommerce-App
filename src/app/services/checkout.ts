@@ -20,8 +20,6 @@ export class CheckoutService {
 
     const checkoutItems = items.map(item => ({
       id: item.product.id,
-      name: item.product.name,
-      price: item.product.price,
       quantity: item.quantity
     }));
 
