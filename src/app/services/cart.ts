@@ -23,51 +23,41 @@ export class CartService {
   }
 
   addToCart(product: Product): void {
-
     const items = [...this.cartItems()];
-
     const existingItem = items.find(
       item => item.product.id === product.id
     );
 
     if (existingItem) {
-
-      existingItem.quantity++;
-
+      if (existingItem.quantity < 99) {
+        existingItem.quantity++;
+      }
     } else {
-
       items.push({
         product: product,
         quantity: 1
       });
-
     }
-
     this.cartItems.set(items);
   }
 
   removeFromCart(productId: number): void {
-
     this.cartItems.update(items =>
       items.filter(item => item.product.id !== productId)
     );
-
   }
 
   increaseQuantity(productId: number): void {
-
     this.cartItems.update(items =>
       items.map(item =>
         item.product.id === productId
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: Math.min(99, item.quantity + 1) }
           : item
       )
     );
-
   }
 
   decreaseQuantity(productId: number): void {
-
     this.cartItems.update(items =>
       items
         .map(item =>
@@ -77,7 +67,6 @@ export class CartService {
         )
         .filter(item => item.quantity > 0)
     );
-
   }
 
   clearCart(): void {
@@ -85,12 +74,10 @@ export class CartService {
   }
 
   getTotal(): number {
-
     return this.cartItems().reduce(
       (total, item) =>
         total + item.product.price * item.quantity,
       0
     );
-
   }
 }

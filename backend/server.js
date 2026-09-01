@@ -22,9 +22,10 @@ app.use(
     express.static(path.join(__dirname, 'products'))
 );
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
 
-app.use(cors({origin: 'http://localhost:4200'}));
+app.use(cors({ origin: FRONTEND_URL }));
 app.use('/api/stripe-webhook', express.raw({
   type: 'application/json'
 }));
@@ -194,16 +195,18 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     mode: 'payment',
 
-    success_url: 'http://localhost:4200/success',
-
-    cancel_url: 'http://localhost:4200/cart',
+    success_url: `${FRONTEND_URL}/success`,
+    cancel_url: `${FRONTEND_URL}/cart`,
 
     customer_creation: 'always',
 
     metadata: {
-      items: JSON.stringify(items)
+      items: JSON.stringify(validatedItems.map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        }))
+      )
     }
-
   });
 
 
@@ -349,6 +352,53 @@ app.post(
 
   const session = event.data.object;
 
+  const existingOrder = db
+    .prepare(
+      'SELECT id FROM orders WHERE stripe_session_id = ?'
+    )
+    .get(session.id);
+
+    if (existingOrder) {
+      return res.json({
+        received: true
+      });
+    }
+
+    let items;
+    try {
+      items = JSON.parse(session.metadata?.items || '[]');
+    } catch {
+      return res.status(400).json({
+        message: 'Invalid order metadata'
+      });
+    }
+
+    if (!Array.isArray(items) || items.length === 0 || items.some(item => 
+      !Number.isInteger(Number(item.id)) || Number(item.id) <= 0 || !Number.isInteger(Number(item.quantity)) ||
+      Number(item.quantity) < 1 || Number(item.quantity) > 99)) {
+        return res.status(400).json({
+          message: 'Invalid order items'
+        });
+    }
+
+    const productIds = items.map(item => Number(item.id));
+
+    const products = db
+     .prepare(`
+      SELECT id, name, price
+      FROM products
+      WHERE id IN (${productIds.map(() => '?').join(',')})
+      `)  
+      .all(...productIds);
+
+    const productMap = new Map(products.map(product => [product.id, product]));
+
+    if (products.length !== productIds.length) {
+      return res.status(400).json({
+        message: 'One or more products were not found'
+      });
+    }
+
   console.log('PAYMENT COMPLETED:', session.id);
 
 
@@ -360,11 +410,6 @@ app.post(
 
   const total =
     session.amount_total / 100;
-
-
-  const items =
-    JSON.parse(session.metadata.items);
-
 
   const createOrder = db.transaction(() => {
 
@@ -408,12 +453,14 @@ app.post(
 
     for (const item of items) {
 
+      const product = productMap.get(Number(item.id));
+
       insertItem.run(
         orderId,
-        item.id,
-        item.name,
-        item.price,
-        item.quantity
+        product.id,
+        product.name,
+        product.price,
+        Number(item.quantity)
       );
 
     }

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Product } from '../models/product';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,30 +14,20 @@ export class ProductService {
 
 
   getProducts(): Observable<Product[]> {
-
     return this.http.get<Product[]>(this.apiUrl);
-
   }
 
 
   getProductById(id: number): Observable<Product | undefined> {
-
-    return this.getProducts().pipe(
-      map(products =>
-        products.find(product => product.id === id)
-      )
-    );
-
+    return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
 
   createProduct(product: Omit<Product, 'id'>): Observable<Product> {
-
     return this.http.post<Product>(
       this.apiUrl,
       product
     );
-
   }
 
 
@@ -45,25 +35,20 @@ export class ProductService {
     id: number,
     product: Omit<Product, 'id'>
   ): Observable<Product> {
-
     return this.http.put<Product>(
       `${this.apiUrl}/${id}`,
       product
     );
-
   }
 
 
   deleteProduct(id: number): Observable<any> {
-
   return this.http.delete<any>(
     `${this.apiUrl}/${id}`
   );
-
 }
 
   deleteAllProducts(): Observable<any> {
     return this.http.delete<any>(this.apiUrl);
   }
-
 }
