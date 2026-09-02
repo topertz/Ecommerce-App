@@ -66,14 +66,30 @@ export class Admin {
   }
 
   deleteProduct(id: number): void {
+    const product = this.products().find(product => product.id === id);
+
+    if (!product) {
+      return;
+    }
+
+    const confirmed = confirm(`Are you sure want to delete "${product.name}"?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.errorMessage = '';
+
     this.productService.deleteProduct(id).subscribe({
       next: () => {
         this.products.update(products =>
           products.filter(product => product.id !== id)
         );
+        this.successMessage = 'Product deleted successfully.';
       },
       error: (error) => {
         console.error('DELETE ERROR:', error);
+        this.errorMessage = error.error?.message || 'Failed to delete product.';
       }
     });
   }
@@ -97,6 +113,86 @@ export class Admin {
       },
       error: (error) => {
         console.error('DELETE ALL PRODUCTS ERROR:', error);
+      }
+    });
+  }
+
+  newProduct: Omit<Product, 'id'> = {
+    name: '',
+    price: 0,
+    description: '',
+    image: '',
+    category: ''
+  };
+
+  showAddProduct = false;
+  errorMessage = '';
+  successMessage = '';
+
+  openAddProduct(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.newProduct = {
+      name: '',
+      price: 0,
+      description: '',
+      image: '',
+      category: ''
+    };
+
+    this.showAddProduct = true;
+  }
+
+  cancelAddProduct(): void {
+    this.showAddProduct = false;
+  }
+
+  addProduct(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const product = {
+      name: this.newProduct.name.trim(),
+      price: Number(this.newProduct.price),
+      description: this.newProduct.description.trim(),
+      image: this.newProduct.image.trim(),
+      category: this.newProduct.category.trim()
+    };
+
+    if (!product.name) {
+      this.errorMessage = 'Product name is required.';
+      return;
+    }
+
+    if (!Number.isFinite(product.price) || product.price <= 0) {
+      this.errorMessage = 'Price must be greater than 0.';
+      return;
+    }
+
+    if (!product.description) {
+      this.errorMessage = 'Description is required.';
+      return;
+    }
+
+    if (!product.category) {
+      this.errorMessage = 'Category is required.';
+      return;
+    }
+
+    this.productService.createProduct(product).subscribe({
+      next: (createdProduct) => {
+        this.products.update(products => [
+          ...products,
+          createdProduct
+        ]);
+
+        this.showAddProduct = false;
+        this.successMessage = 'Product created successfully.';
+      },
+
+      error: (error) => {
+        console.error('CREATE PRODUCT ERROR:', error);
+        this.errorMessage = error.error?.message || 'Failed to create product.';
       }
     });
   }

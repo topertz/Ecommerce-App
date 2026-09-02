@@ -79,6 +79,36 @@ app.post('/api/products', authenticateToken, requireAdmin, (req, res) => {
     category
   } = req.body;
 
+  const cleanName = typeof name === 'string' ? name.trim() : '';
+  const cleanDescription = typeof description === 'string' ? description.trim() : '';
+  const cleanImage = typeof image === 'string' ? image.trim() : '';
+  const cleanCategory = typeof category === 'string' ? category.trim() : '';
+  const numericPrice = Number(price);
+
+  if (!cleanName) {
+    return res.status(400).json({
+      message: 'Product name is required'
+    });
+  }
+
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    return res.status(400).json({
+      message: 'Price must be greater than 0'
+    });
+  }
+
+  if (!cleanDescription) {
+    return res.status(400).json({
+      message: 'Product description is required'
+    });
+  }
+
+  if (!cleanCategory) {
+    return res.status(400).json({
+      message: 'Product category is required'
+    });
+  }
+
   const result = db
     .prepare(`
       INSERT INTO products
@@ -86,11 +116,11 @@ app.post('/api/products', authenticateToken, requireAdmin, (req, res) => {
       VALUES (?, ?, ?, ?, ?)
     `)
     .run(
-      name,
-      price,
-      description,
-      image,
-      category
+      cleanName,
+      numericPrice,
+      cleanDescription,
+      cleanImage,
+      cleanCategory
     );
 
   const newProduct = db
@@ -238,6 +268,36 @@ app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
     category
   } = req.body;
 
+  const cleanName = typeof name === 'string' ? name.trim() : '';
+  const cleanDescription = typeof description === 'string' ? description.trim() : '';
+  const cleanImage = typeof image === 'string' ? image.trim() : '';
+  const cleanCategory = typeof category === 'string' ? category.trim() : '';
+  const numericPrice = Number(price);
+
+  if (!cleanName) {
+    return res.status(400).json({
+      message: 'Product name is required'
+    });
+  }
+
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    return res.status(400).json({
+      message: 'Price must be greater than 0'
+    });
+  }
+
+  if (!cleanDescription) {
+    return res.status(400).json({
+      message: 'Product description is required'
+    });
+  }
+
+  if (!cleanCategory) {
+    return res.status(400).json({
+      message: 'Product category is required'
+    });
+  }
+
   const product = db
     .prepare('SELECT * FROM products WHERE id = ?')
     .get(id);
@@ -260,11 +320,11 @@ app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
       category = ?
     WHERE id = ?
   `).run(
-    name,
-    price,
-    description,
-    image,
-    category,
+    cleanName,
+    numericPrice,
+    cleanDescription,
+    cleanImage,
+    cleanCategory,
     id
   );
 
@@ -575,7 +635,6 @@ app.post('/api/register', async (req, res) => {
   try {
 
     const username = typeof req.body.username === 'string' ? req.body.username.trim(): '';
-
     const password = typeof req.body.password === 'string' ? req.body.password: '';
 
     if (!username || !password) {
@@ -627,7 +686,7 @@ app.post('/api/register', async (req, res) => {
       .run(
         username,
         hashedPassword,
-        'user'
+        'admin'
       );
 
     const user = db

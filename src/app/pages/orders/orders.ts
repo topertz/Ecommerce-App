@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { TitleCasePipe } from '@angular/common';
 
 interface Order {
   id: number;
@@ -22,7 +23,7 @@ interface OrderItem {
 
 @Component({
   selector: 'app-orders',
-  imports: [],
+  imports: [TitleCasePipe],
   templateUrl: './orders.html',
   styleUrl: './orders.css'
 })
@@ -39,6 +40,7 @@ export class Orders {
   loading = true;
 
   loadingItems = false;
+  errorMessage = '';
 
 
   constructor() {
@@ -49,29 +51,24 @@ export class Orders {
 
 
   loadOrders(): void {
+    this.loading = true;
+    this.errorMessage = '';
 
     this.http
       .get<Order[]>('http://localhost:3000/api/orders')
       .subscribe({
-
         next: (orders) => {
-
           this.orders = orders;
-
           this.loading = false;
-
         },
 
         error: (error) => {
 
           console.error('ORDERS ERROR:', error);
-
           this.loading = false;
-
+          this.errorMessage = error.error?.message || 'Failed to load orders.';
         }
-
       });
-
   }
 
 

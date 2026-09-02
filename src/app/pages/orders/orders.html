@@ -1,10 +1,15 @@
 <section class="orders-page">
 
   <h1>Orders Management</h1>
-
   <p>Orders loaded: {{ orders.length }}</p>
 
-  @if (orders.length > 0) {
+  @if (loading) {
+    <p>Loading orders...</p>
+  } @else if (errorMessage) {
+     <p class="error-message">{{ errorMessage }}</p>
+  } @else if (orders.length === 0) {
+    <p class="empty-message">No orders found.</p>
+  } @else {
 
     <div class="orders-list">
 
@@ -21,8 +26,13 @@
               Order #{{ order.id }}
             </h2>
 
-            <span class="status">
-              {{ order.status }}
+            <span class="status" [class.status-pending]="order.status === 'pending'"
+              [class.status-paid]="order.status === 'paid'"
+              [class.status-processing]="order.status === 'processing'"
+              [class.status-shipped]="order.status === 'shipped'"
+              [class.status-completed]="order.status === 'completed'"
+              [class.status-cancelled]="order.status === 'cancelled'">
+              {{ order.status | titlecase }}
             </span>
 
           </div>

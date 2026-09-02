@@ -2,6 +2,16 @@
 
   <h1>Product Management</h1>
 
+  <div class="admin-toolbar">
+    <button type="button" class="add-product-button" (click)="openAddProduct()">
+      + Add Product 
+    </button>
+
+    <button type="button" class="delete-all-button" (click)="deleteAllProducts()" [disabled]="products().length === 0">
+      Delete All Products
+    </button>
+  </div>
+
   <p>Products loaded: {{ products().length }}</p>
 
   <div class="delete-all-container">
@@ -76,16 +86,28 @@
         <h2>Edit Product</h2>
 
         <div class="form-group">
+          <label for="name">Name</label>
+          <input id="name" type="text" [(ngModel)]="editingProduct.name">
+        </div>
 
-          <label for="name">
-            Name
-          </label>
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input id="price" type="number" min="0.01" step="0.01" [(ngModel)]="editingProduct.price">
+        </div>
 
-          <input
-            id="name"
-            type="text"
-            [(ngModel)]="editingProduct.name">
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" [(ngModel)]="editingProduct.description"></textarea>
+        </div>
 
+        <div class="form-group">
+          <label for="image">Image</label>
+          <input id="image" type="text" [(ngModel)]="editingProduct.image">
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <input id="category" type="text" [(ngModel)]="editingProduct.category">
         </div>
 
         <div class="edit-actions">
@@ -111,5 +133,46 @@
     </div>
 
   }
+
+  @if (showAddProduct) {
+    <div class="modal-overlay" (click)="cancelAddProduct()">
+      <div class="edit-modal" (click)="$event.stopPropagation()">
+        <h2>Add Product</h2>
+        <div class="form-group">
+          <label for="new-name">Name</label>
+          <input id="new-name" type="text" [(ngModel)]="newProduct.name">
+        </div>
+
+        <div class="form-group">
+          <label for="new-price">Price</label>
+          <input id="new-price" type="number" min="0.01" step="0.01" [(ngModel)]="newProduct.price">
+        </div>
+
+        <div class="form-group">
+          <label for="new-description">Description</label>
+          <textarea id="new-description" [(ngModel)]="newProduct.description"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="new-image">Image</label>
+          <input id="new-image" type="text" [(ngModel)]="newProduct.image" placeholder="products/example.jpg">
+        </div>
+
+        <div class="form-group">
+          <label for="new-category">Category</label>
+          <input id="new-category" type="text" [(ngModel)]="newProduct.category">
+        </div>
+
+        @if (errorMessage) {
+          <p class="error-message"> {{ errorMessage }}</p>
+        } 
+
+        <div class="edit-actions">
+          <button type="button" class="save-button" (click)="addProduct()">Add Product</button>
+          <button type="button" class="cancel-button" (click)="cancelAddProduct()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  }   
 
 </section>
