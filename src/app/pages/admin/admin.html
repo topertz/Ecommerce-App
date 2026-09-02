@@ -14,16 +14,6 @@
 
   <p>Products loaded: {{ products().length }}</p>
 
-  <div class="delete-all-container">
-    <button
-      type="button"
-      class="delete-all-button"
-      (click)="deleteAllProducts()"
-      [disabled]="products().length === 0">
-      Delete All Products
-    </button>
-  </div>
-
   <div class="products-list">
 
     @for (product of products(); track product.id) {
