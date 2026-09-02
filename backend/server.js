@@ -686,7 +686,7 @@ app.post('/api/register', async (req, res) => {
       .run(
         username,
         hashedPassword,
-        'admin'
+        'user'
       );
 
     const user = db
@@ -771,8 +771,7 @@ app.post('/api/login', async (req, res) => {
     const token = jwt.sign(
   {
     id: user.id,
-    username: user.username,
-    role: user.role
+    username: user.username
   },
   process.env.JWT_SECRET,
   {
@@ -801,6 +800,10 @@ res.json({
 
   }
 
+});
+
+app.get('/api/me', authenticateToken, (req, res) => {
+  res.json(req.user);
 });
 
 app.listen(PORT, () => {

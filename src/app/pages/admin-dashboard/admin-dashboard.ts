@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -9,16 +9,12 @@ import { Router } from '@angular/router';
   styleUrl: './admin-dashboard.css'
 })
 export class AdminDashboard {
-
-  constructor(private router: Router) {}
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   logout(): void {
-
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('token');
-
+    this.authService.logout();
     this.router.navigate(['/login']);
-
   }
 
 }

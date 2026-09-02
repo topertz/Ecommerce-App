@@ -1,12 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { HttpInterceptorFn } from '@angular/common/http';
-import { authInterceptor } from './auth-interceptor';
+import { AuthService } from './auth';
 
-describe('authInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) =>
-    TestBed.runInInjectionContext(() => authInterceptor(req, next));
-
+describe('AuthService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -21,6 +17,13 @@ describe('authInterceptor', () => {
   });
 
   it('should be created', () => {
-    expect(interceptor).toBeTruthy();
+    const service = TestBed.inject(AuthService);
+    expect(service).toBeTruthy();
+  });
+
+  it('should return the stored token', () => {
+    localStorage.setItem('token', 'test-token');
+    const service = TestBed.inject(AuthService);
+    expect(service.getToken()).toBe('test-token');
   });
 });

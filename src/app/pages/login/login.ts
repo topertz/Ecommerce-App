@@ -1,17 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
-interface LoginResponse {
-  message: string;
-  token: string;
-  user: {
-    id: number;
-    username: string;
-    role: string;
-  };
-}
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -20,8 +10,7 @@ interface LoginResponse {
   styleUrl: './login.css'
 })
 export class Login {
-
-  private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   username = '';
@@ -41,37 +30,29 @@ export class Login {
 
     this.loading = true;
 
+    this.authService.login(this.username.trim(), this.password
+    )
+    .subscribe({
 
-    this.http
-      .post<LoginResponse>(
-        'http://localhost:3000/api/login',
-        {
-          username: this.username.trim(),
-          password: this.password
-        }
-      )
-      .subscribe({
-
-        next: (response) => {
-
-          localStorage.setItem(
-            'adminUser',
-            JSON.stringify(response.user)
-          );
-
-          localStorage.setItem(
-            'token',
-            response.token
-          );
-
+        next: () => {
           this.loading = false;
 
-          if (response.user.role === 'admin') {
-            this.router.navigate(['/admin']);
-          } else {
+          this.authService.getCurrentUser().subscribe({
+            next: (user) => {
+              if (user.role === 'admin') {
+                this.router.navigate(['/admin']);
+              } else {
+                this.router.navigate(['/']);
+              }
+          },
+
+          error: () => {
             this.router.navigate(['/']);
           }
-        },
+
+        });
+
+      },
 
         error: (error) => {
 
@@ -84,9 +65,6 @@ export class Login {
           this.loading = false;
 
         }
-
       });
-
   }
-
 }

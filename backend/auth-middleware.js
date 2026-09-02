@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const db = require('./database');
 
 function authenticateToken(req, res, next) {
 
@@ -10,7 +11,7 @@ function authenticateToken(req, res, next) {
     });
   }
 
-  const token = authHeader.substring(7);
+  const token = authHeader.substring(7).trim();
 
   if (!token) {
     return res.status(401).json({
@@ -36,7 +37,21 @@ function authenticateToken(req, res, next) {
       }
     );
 
-    req.user = decoded;
+    const user = db
+     .prepare(`
+       SELECT id, username, role
+       FROM users
+       WHERE id = ?
+      `)
+      .get(decoded.id);
+
+      if (!user) {
+        return res.status(401).json({
+          message: 'User no longer exists'
+        });
+      }
+
+    req.user = user;
 
     next();
 

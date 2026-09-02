@@ -1,26 +1,26 @@
-import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { AuthService } from '../services/auth';
 
 export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
   const router = inject(Router);
 
-  const token = localStorage.getItem('token');
-  const adminUserJson = localStorage.getItem('adminUser');
-
-  if (!token || !adminUserJson) {
+  if (!authService.isLoggedIn()) {
     return router.createUrlTree(['/login']);
   }
 
-  try {
-    const user = JSON.parse(adminUserJson);
+  return authService.getCurrentUser().pipe(map(user => {
+      if (user.role === 'admin') {
+        return true;
+      }
 
-    if (user.role === 'admin') {
-      return true;
-    }
-  } catch {
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('token');
-  }
-
-  return router.createUrlTree(['/login']);
+      return router.createUrlTree(['/']);
+    }),
+    catchError (() => {
+      return of(router.createUrlTree(['/login']));
+    })
+  );
 };
